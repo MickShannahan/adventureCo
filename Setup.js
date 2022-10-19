@@ -16,6 +16,10 @@ export class Paths {
     return this.Server + '/controllers'
   }
 
+  static get SetUpControllers() {
+    return './setups/controllers'
+  }
+
   static get Handlers() {
     return this.Server + '/handlers'
   }
@@ -23,11 +27,14 @@ export class Paths {
 
 export function RegisterControllers(router) {
   const controllers = fs.readdirSync(Paths.Controllers)
-  controllers.forEach(loadController)
-  async function loadController(controllerName) {
+  const setUpControllers = fs.readdirSync(Paths.SetUpControllers)
+  controllers.forEach((ctl) => loadController(ctl))
+  setUpControllers.forEach((ctl) => loadController(ctl, 'SetUpControllers'))
+  async function loadController(controllerName, path = 'Controllers') {
     try {
+      path = Paths[path]
       if (!controllerName.endsWith('.js')) return
-      const fileHandler = await import(Paths.Controllers + '/' + controllerName)
+      const fileHandler = await import(path + '/' + controllerName)
       let ControllerClass = fileHandler[controllerName.slice(0, -3)]
       if (!ControllerClass) {
         throw new Error(`${controllerName} The exported class does not match the filename`)
@@ -54,7 +61,7 @@ const HANDLERS = []
 export async function RegisterSocketHandlers() {
   const directory = Paths.Handlers
   const handlers = fs.readdirSync(directory)
-  handlers.forEach(async(handlerName) => {
+  handlers.forEach(async (handlerName) => {
     try {
       if (!handlerName.endsWith('.js')) { return }
       const fileHandler = await import(directory + '/' + handlerName)
