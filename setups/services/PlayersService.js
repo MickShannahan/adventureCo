@@ -1,4 +1,4 @@
-import { dbContext } from "../db/DbContext.js"
+import { dbCtx } from "../db/DbContext.js"
 
 
 class PlayersService {
@@ -12,11 +12,10 @@ class PlayersService {
    * @param {any} user
    */
   async getPlayer(user) {
-    let player = await dbContext.Player.findOne({
-      _id: user.id
+    let player = await dbCtx.Players.findOne({
+      $or: [{ _id: user.id }, { name: user.name }]
     })
     player = await createPlayerIfNeeded(player, user)
-    await mergeSubsIfNeeded(player, user)
     return player
   }
 
@@ -27,7 +26,7 @@ class PlayersService {
    */
   async updatePlayer(user, body) {
     const update = sanitizeBody(body)
-    const player = await dbContext.Player.findOneAndUpdate(
+    const player = await dbCtx.Players.findOneAndUpdate(
       { _id: user.id },
       { $set: update },
       { runValidators: true, setDefaultsOnInsert: true, new: true }
@@ -48,10 +47,8 @@ export const playersService = new PlayersService()
  */
 async function createPlayerIfNeeded(player, user) {
   if (!player) {
-    user._id = user.id
-    player = await dbContext.Player.create({
-      ...user,
-      subs: [user.sub]
+    player = await dbCtx.Players.create({
+      ...user
     })
   }
   return player

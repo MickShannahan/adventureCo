@@ -1,11 +1,11 @@
-import { Auth0Provider } from '@bcwdev/auth0provider'
 import { json } from 'body-parser'
 import cors from 'cors'
 import express from 'express'
 import helmet from 'helmet'
 import { Paths, RegisterControllers, RegisterSocketHandlers } from '../Setup'
-import { AccountValidator } from './utils/AccountValidator'
+import { DbChapters } from '../setups/db/DbChapterSetter.js'
 import { logger } from './utils/Logger'
+
 
 export class Startup {
   static ConfigureGlobalMiddleware(app) {
@@ -17,13 +17,14 @@ export class Startup {
       crossOriginResourcePolicy: { policy: 'cross-origin' }
     }))
     app.use(json({ limit: '50mb' }))
-
+    app.use(DbChapters.handleChapter)
     // NOTE Configures auth0 middleware that is used throughout controllers
-    Auth0Provider.configure({
-      domain: process.env.AUTH_DOMAIN || '',
-      clientId: process.env.AUTH_CLIENT_ID || '',
-      audience: process.env.AUTH_AUDIENCE || ''
-    })
+    // NOTE not used for this app
+    // Auth0Provider.configure({
+    //   domain: process.env.AUTH_DOMAIN || '',
+    //   clientId: process.env.AUTH_CLIENT_ID || '',
+    //   audience: process.env.AUTH_AUDIENCE || ''
+    // })
   }
 
   static configureCors(app) {
@@ -44,7 +45,7 @@ export class Startup {
 
   static ConfigureRoutes(app) {
     const router = express.Router()
-    app.use(AccountValidator)
+    // app.use(AccountValidator)
     RegisterControllers(router)
     RegisterSocketHandlers()
     app.use(router)

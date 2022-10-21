@@ -7,7 +7,7 @@ export const AreaSchema = new Schema({
   primaryBiome: String,
   secondaryBiome: String,
   description: String,
-  rulerId: { type: ObjectId, ref: 'Person' },
+  leaderId: { type: ObjectId, ref: 'Person' },
   population: String,
   majorExport: String
 }, { toJSON: { virtuals: true } })

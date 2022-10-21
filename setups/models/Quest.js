@@ -7,7 +7,6 @@ export const QuestSchema = new Schema({
   description: String,
   type: String,
   goldReward: Number,
-  questPointsReward: Number,
   questGiverId: { type: ObjectId, required: true, ref: 'Person' },
   areaId: { type: ObjectId, required: true, ref: 'Area' },
   completed: { type: Boolean, required: true, default: false }
